@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const article_entity_1 = require("../entities/article.entity");
 const typeorm_2 = require("typeorm");
+const response_list_dto_1 = require("./dto/response-list.dto");
 const axios_1 = require("@nestjs/axios");
 const rxjs_1 = require("rxjs");
 const tag_article_entity_1 = require("../entities/tag-article.entity");
@@ -117,9 +118,25 @@ let ArticlesService = class ArticlesService {
             const tags = await this.getTagsForArticle(article.id);
             if (tagFilter != null) {
                 if (tags.findIndex(x => x.name == tagFilter) > -1) {
+                    const responseItem = new response_list_dto_1.ResponseListDto();
+                    responseItem.id = article.id;
+                    responseItem.author = article.author;
+                    responseItem.authorAge = article.author_age;
+                    responseItem.title = article.title;
+                    responseItem.date_created = article.date_created;
+                    responseItem.tags = tags;
+                    response.push(responseItem);
                 }
             }
             else {
+                const responseItem = new response_list_dto_1.ResponseListDto();
+                responseItem.id = article.id;
+                responseItem.author = article.author;
+                responseItem.authorAge = article.author_age;
+                responseItem.title = article.title;
+                responseItem.date_created = article.date_created;
+                responseItem.tags = tags;
+                response.push(responseItem);
             }
         }
         return response;

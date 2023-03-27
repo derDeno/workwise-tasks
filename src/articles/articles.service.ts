@@ -154,9 +154,26 @@ export class ArticlesService {
             if(tagFilter != null) {
                 if(tags.findIndex( x => x.name == tagFilter) > -1) {
                     // tagfilter is in tag array
+                    const responseItem = new ResponseListDto();
+                    responseItem.id = article.id;
+                    responseItem.author = article.author;
+                    responseItem.authorAge = article.author_age;
+                    responseItem.title = article.title;
+                    responseItem.date_created = article.date_created;
+                    responseItem.tags = tags;
+                    
+                    response.push(responseItem);
                 }
             }else {
-                // add tags to article
+                const responseItem = new ResponseListDto();
+                responseItem.id = article.id;
+                responseItem.author = article.author;
+                responseItem.authorAge = article.author_age;
+                responseItem.title = article.title;
+                responseItem.date_created = article.date_created;
+                responseItem.tags = tags;
+
+                response.push(responseItem);
             }
         }
 
