@@ -19,6 +19,6 @@ export declare class ArticlesService {
         msg: string;
     }>;
     deleteArticle(articleId: number): Promise<any>;
-    getAllArticles(): Promise<any>;
+    getAllArticles(tagFilter: string, authorFilter: string): Promise<any>;
     getTagsForArticle(articleId: number): Promise<TagsEntity[]>;
 }

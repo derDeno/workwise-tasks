@@ -123,7 +123,7 @@ export class ArticlesService {
     }
     
 
-    async getAllArticles(): Promise<any> {
+    async getAllArticles(tagFilter: string, authorFilter: string): Promise<any> {
         const articles = await this.articlesRepo.find();
         const result: ArticlesEntity[] = [];
 
@@ -132,12 +132,36 @@ export class ArticlesService {
             // check the publish and expire timestamps to determine if it is public or not
             const currentTimestamp = Math.floor(new Date().getTime() / 1000);
             if(article.date_publish < currentTimestamp && ( article.date_expire === 0 || article.date_expire > currentTimestamp) ) {
-                result.push(article);
+
+                // check if author filter is set
+                if(authorFilter != null) {
+                    if(article.author == authorFilter) {
+                        result.push(article);
+                    }
+                }else {
+                    result.push(article);
+                }
+            }
+        }
+
+        // add / filter tags and prepare final response dto
+        const response: ResponseListDto[] = [];
+        for (const article of result) {
+            
+            const tags = await this.getTagsForArticle(article.id);
+
+            // check if there is a tags filter
+            if(tagFilter != null) {
+                if(tags.findIndex( x => x.name == tagFilter) > -1) {
+                    // tagfilter is in tag array
+                }
+            }else {
+                // add tags to article
             }
         }
 
         // map entity to dto to remove the content field
-        return plainToInstance(ResponseListDto, result); 
+        return response; 
     }
 
 

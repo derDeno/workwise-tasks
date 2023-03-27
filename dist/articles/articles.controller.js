@@ -21,8 +21,8 @@ let ArticlesController = class ArticlesController {
     constructor(services) {
         this.services = services;
     }
-    async getAllArticles() {
-        return await this.services.getAllArticles();
+    async getAllArticles(tagFilter, authorFilter) {
+        return await this.services.getAllArticles(tagFilter, authorFilter);
     }
     async createArticle(createArticleDto) {
         return await this.services.createArticle(createArticleDto);
@@ -40,8 +40,10 @@ let ArticlesController = class ArticlesController {
 __decorate([
     (0, common_1.UseInterceptors)(common_1.ClassSerializerInterceptor),
     (0, common_1.Get)('all'),
+    __param(0, (0, common_1.Query)('tag')),
+    __param(1, (0, common_1.Query)('author')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], ArticlesController.prototype, "getAllArticles", null);
 __decorate([

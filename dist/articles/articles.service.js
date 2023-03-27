@@ -15,10 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ArticlesService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const class_transformer_1 = require("class-transformer");
 const article_entity_1 = require("../entities/article.entity");
 const typeorm_2 = require("typeorm");
-const response_list_dto_1 = require("./dto/response-list.dto");
 const axios_1 = require("@nestjs/axios");
 const rxjs_1 = require("rxjs");
 const tag_article_entity_1 = require("../entities/tag-article.entity");
@@ -98,16 +96,33 @@ let ArticlesService = class ArticlesService {
             throw new common_1.NotFoundException('Article not found!');
         }
     }
-    async getAllArticles() {
+    async getAllArticles(tagFilter, authorFilter) {
         const articles = await this.articlesRepo.find();
         const result = [];
         for (const article of articles) {
             const currentTimestamp = Math.floor(new Date().getTime() / 1000);
             if (article.date_publish < currentTimestamp && (article.date_expire === 0 || article.date_expire > currentTimestamp)) {
-                result.push(article);
+                if (authorFilter != null) {
+                    if (article.author == authorFilter) {
+                        result.push(article);
+                    }
+                }
+                else {
+                    result.push(article);
+                }
             }
         }
-        return (0, class_transformer_1.plainToInstance)(response_list_dto_1.ResponseListDto, result);
+        const response = [];
+        for (const article of result) {
+            const tags = await this.getTagsForArticle(article.id);
+            if (tagFilter != null) {
+                if (tags.findIndex(x => x.name == tagFilter) > -1) {
+                }
+            }
+            else {
+            }
+        }
+        return response;
     }
     async getTagsForArticle(articleId) {
         const tagArticles = await this.tagsArticleRepo.findBy({ articleId: articleId });

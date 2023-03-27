@@ -4,7 +4,7 @@ import { UpdateArticleDto } from './dto/update-article.dto';
 export declare class ArticlesController {
     private readonly services;
     constructor(services: ArticlesService);
-    getAllArticles(): Promise<any>;
+    getAllArticles(tagFilter: string, authorFilter: string): Promise<any>;
     createArticle(createArticleDto: CreateArticleDto): Promise<any>;
     updateArticle(articleId: number, dto: UpdateArticleDto): Promise<any>;
     getArticle(articleId: number): Promise<any>;

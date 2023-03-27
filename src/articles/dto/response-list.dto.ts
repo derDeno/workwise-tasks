@@ -1,4 +1,5 @@
 import { Exclude } from 'class-transformer';
+import { TagsEntity } from 'src/entities/tags.entity';
 
 export class ResponseListDto {
   public id: number;
@@ -6,7 +7,7 @@ export class ResponseListDto {
   public author: string;
   public authorAge: number;
   public date_created: number;
-//  public tags: TagDto[];
+  public tags: TagsEntity[];
 
   @Exclude()
   public content: string;

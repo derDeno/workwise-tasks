@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Post, Put, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Post, Put, Query, UseInterceptors } from '@nestjs/common';
 import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
@@ -10,8 +10,8 @@ export class ArticlesController {
 
 	@UseInterceptors(ClassSerializerInterceptor)
 	@Get('all')
-	async getAllArticles(): Promise<any> {
-		return await this.services.getAllArticles();
+	async getAllArticles(@Query('tag') tagFilter: string, @Query('author') authorFilter: string): Promise<any> {
+		return await this.services.getAllArticles(tagFilter, authorFilter);
 	}
 
 	@Put('')
