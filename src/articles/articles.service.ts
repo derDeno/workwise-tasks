@@ -10,12 +10,15 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { TagInArticleEntity } from 'src/entities/tag-article.entity';
 import { TagsService } from 'src/tags/tags.service';
+import { TagsEntity } from 'src/entities/tags.entity';
+import { ResponseDto } from './dto/response.dto';
 
 @Injectable()
 export class ArticlesService {
     constructor(
         @InjectRepository(ArticlesEntity) private articlesRepo: Repository<ArticlesEntity>,
         @InjectRepository(TagInArticleEntity) private tagsArticleRepo: Repository<TagInArticleEntity>,
+        @InjectRepository(TagsEntity) private tagsRepo: Repository<TagsEntity>,
         private httpService: HttpService,
         private tagService: TagsService,
     ) { }
@@ -49,7 +52,22 @@ export class ArticlesService {
     
     async getArticle(articleId: number): Promise<any> {
         const article = await this.articlesRepo.findOneBy({ id: articleId });
-        return article;
+
+        const tags = await this.getTagsForArticle(articleId);
+
+        const response = new ResponseDto();
+        response.id = article.id;
+        response.author = article.author;
+        response.authorAge = article.author_age;
+        response.content = article.content;
+        response.title = article.title;
+        response.date_created = article.date_created;
+        response.date_publish = article.date_publish;
+        response.date_expire = article.date_expire;
+
+        response.tags = tags;
+
+        return response;
     }
 
     
@@ -63,10 +81,20 @@ export class ArticlesService {
         article.date_expire = dto.date_expire;
         article.author = dto.author;
 
+        // check if author changed
         if(dto.author != null) {
             // update age
             const { data } = await firstValueFrom(this.httpService.get("https://api.agify.io/?name=" + dto.author));
             article.author_age = data.age;
+        }
+
+        // if tags are given, update them too
+        if(dto.tags != null) {
+            
+            // save the tags
+            for (const tag of dto.tags) {
+                this.tagService.bindTag(tag, articleId);
+            }
         }
 
         const result = await this.articlesRepo.update({ id: articleId}, article);
@@ -110,6 +138,21 @@ export class ArticlesService {
 
         // map entity to dto to remove the content field
         return plainToInstance(ResponseListDto, result); 
+    }
+
+
+    // get all tags for an article
+    async getTagsForArticle(articleId: number): Promise<TagsEntity[]> {
+
+        const tagArticles = await this.tagsArticleRepo.findBy({ articleId: articleId });
+        const result: TagsEntity[] = [];
+
+        for (const tagArticle of tagArticles) {
+            const tag = await this.tagsRepo.findOneBy({ id: tagArticle.tagId });
+            result.push(tag);
+        }
+
+        return result;
     }
     
 }

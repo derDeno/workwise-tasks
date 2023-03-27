@@ -23,10 +23,13 @@ const axios_1 = require("@nestjs/axios");
 const rxjs_1 = require("rxjs");
 const tag_article_entity_1 = require("../entities/tag-article.entity");
 const tags_service_1 = require("../tags/tags.service");
+const tags_entity_1 = require("../entities/tags.entity");
+const response_dto_1 = require("./dto/response.dto");
 let ArticlesService = class ArticlesService {
-    constructor(articlesRepo, tagsArticleRepo, httpService, tagService) {
+    constructor(articlesRepo, tagsArticleRepo, tagsRepo, httpService, tagService) {
         this.articlesRepo = articlesRepo;
         this.tagsArticleRepo = tagsArticleRepo;
+        this.tagsRepo = tagsRepo;
         this.httpService = httpService;
         this.tagService = tagService;
     }
@@ -48,7 +51,18 @@ let ArticlesService = class ArticlesService {
     }
     async getArticle(articleId) {
         const article = await this.articlesRepo.findOneBy({ id: articleId });
-        return article;
+        const tags = await this.getTagsForArticle(articleId);
+        const response = new response_dto_1.ResponseDto();
+        response.id = article.id;
+        response.author = article.author;
+        response.authorAge = article.author_age;
+        response.content = article.content;
+        response.title = article.title;
+        response.date_created = article.date_created;
+        response.date_publish = article.date_publish;
+        response.date_expire = article.date_expire;
+        response.tags = tags;
+        return response;
     }
     async updateArticle(articleId, dto) {
         const article = new article_entity_1.ArticlesEntity();
@@ -60,6 +74,11 @@ let ArticlesService = class ArticlesService {
         if (dto.author != null) {
             const { data } = await (0, rxjs_1.firstValueFrom)(this.httpService.get("https://api.agify.io/?name=" + dto.author));
             article.author_age = data.age;
+        }
+        if (dto.tags != null) {
+            for (const tag of dto.tags) {
+                this.tagService.bindTag(tag, articleId);
+            }
         }
         const result = await this.articlesRepo.update({ id: articleId }, article);
         if (result.affected > 0) {
@@ -90,12 +109,23 @@ let ArticlesService = class ArticlesService {
         }
         return (0, class_transformer_1.plainToInstance)(response_list_dto_1.ResponseListDto, result);
     }
+    async getTagsForArticle(articleId) {
+        const tagArticles = await this.tagsArticleRepo.findBy({ articleId: articleId });
+        const result = [];
+        for (const tagArticle of tagArticles) {
+            const tag = await this.tagsRepo.findOneBy({ id: tagArticle.tagId });
+            result.push(tag);
+        }
+        return result;
+    }
 };
 ArticlesService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(article_entity_1.ArticlesEntity)),
     __param(1, (0, typeorm_1.InjectRepository)(tag_article_entity_1.TagInArticleEntity)),
+    __param(2, (0, typeorm_1.InjectRepository)(tags_entity_1.TagsEntity)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
         typeorm_2.Repository,
         axios_1.HttpService,
         tags_service_1.TagsService])

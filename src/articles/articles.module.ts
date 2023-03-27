@@ -6,6 +6,7 @@ import { ArticlesEntity } from 'src/entities/article.entity';
 import { TagsEntity } from 'src/entities/tags.entity';
 import { TagInArticleEntity } from 'src/entities/tag-article.entity';
 import { HttpModule } from '@nestjs/axios';
+import { TagsService } from 'src/tags/tags.service';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { HttpModule } from '@nestjs/axios';
     ]),
     HttpModule,
   ],
-  providers: [ArticlesService],
+  providers: [ArticlesService, TagsService],
   controllers: [ArticlesController],
 })
 export class ArticlesModule { }

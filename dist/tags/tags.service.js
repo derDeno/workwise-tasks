@@ -15,13 +15,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TagsService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
+const article_entity_1 = require("../entities/article.entity");
 const tag_article_entity_1 = require("../entities/tag-article.entity");
 const tags_entity_1 = require("../entities/tags.entity");
 const typeorm_2 = require("typeorm");
+const reponse_tag_article_dto_1 = require("./dto/reponse-tag-article.dto");
 let TagsService = class TagsService {
-    constructor(tagsRepo, tagsArticleRepo) {
+    constructor(tagsRepo, tagsArticleRepo, articlesRepo) {
         this.tagsRepo = tagsRepo;
         this.tagsArticleRepo = tagsArticleRepo;
+        this.articlesRepo = articlesRepo;
     }
     async bindTag(tagName, articleId) {
         let tag = await this.tagsRepo.findOneBy({ name: tagName });
@@ -46,8 +49,21 @@ let TagsService = class TagsService {
         };
     }
     async getAllTags() {
+        const tags = await this.tagsRepo.find();
+        return tags;
     }
-    async getTagArticles() {
+    async getTagArticles(tagId) {
+        const tagArticles = await this.tagsArticleRepo.findBy({ tagId: tagId });
+        const response = new reponse_tag_article_dto_1.ResponseTagArticleDto();
+        response.id = tagId;
+        response.name = (await this.tagsRepo.findOneBy({ id: tagId })).name;
+        const articles = [];
+        for (const tagArticle of tagArticles) {
+            const article = await this.articlesRepo.findOneBy({ id: tagArticle.articleId });
+            articles.push(article);
+        }
+        response.articles = articles;
+        return response;
     }
     async deleteTag(tagId) {
         const resultTags = await this.tagsRepo.delete({ id: tagId });
@@ -64,7 +80,9 @@ TagsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(tags_entity_1.TagsEntity)),
     __param(1, (0, typeorm_1.InjectRepository)(tag_article_entity_1.TagInArticleEntity)),
+    __param(2, (0, typeorm_1.InjectRepository)(article_entity_1.ArticlesEntity)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
         typeorm_2.Repository])
 ], TagsService);
 exports.TagsService = TagsService;

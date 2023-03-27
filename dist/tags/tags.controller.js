@@ -19,10 +19,29 @@ let TagsController = class TagsController {
     constructor(services) {
         this.services = services;
     }
+    async getAll() {
+        return await this.services.getAllTags();
+    }
+    async getTag(tagId) {
+        return await this.services.getTagArticles(tagId);
+    }
     async deleteTag(tagId) {
         return await this.services.deleteTag(tagId);
     }
 };
+__decorate([
+    (0, common_1.Get)('all'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], TagsController.prototype, "getAll", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], TagsController.prototype, "getTag", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),

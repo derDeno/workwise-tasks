@@ -1,15 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ArticlesEntity } from 'src/entities/article.entity';
 import { TagInArticleEntity } from 'src/entities/tag-article.entity';
 import { TagsEntity } from 'src/entities/tags.entity';
 import { Repository } from 'typeorm';
+import { ResponseTagArticleDto } from './dto/reponse-tag-article.dto';
 
 @Injectable()
 export class TagsService {
 
     constructor(
         @InjectRepository(TagsEntity) private tagsRepo: Repository<TagsEntity>,
-        @InjectRepository(TagInArticleEntity) private tagsArticleRepo: Repository<TagInArticleEntity>
+        @InjectRepository(TagInArticleEntity) private tagsArticleRepo: Repository<TagInArticleEntity>,
+        @InjectRepository(ArticlesEntity) private articlesRepo: Repository<ArticlesEntity>,
     ) { }
 
 
@@ -51,11 +54,31 @@ export class TagsService {
 
 
     async getAllTags(): Promise<any> {
-
+        const tags = await this.tagsRepo.find();
+        return tags;
     }
 
-    async getTagArticles(): Promise<any> {
+    async getTagArticles(tagId: number): Promise<any> {
+        const tagArticles = await this.tagsArticleRepo.findBy({ tagId: tagId });
 
+        const response = new ResponseTagArticleDto();
+        response.id = tagId;
+        response.name = ( await this.tagsRepo.findOneBy({ id: tagId }) ).name;
+
+        const articles: ArticlesEntity[] = [];
+
+        // find each article and add it to the response dto
+        for (const tagArticle of tagArticles) {
+            const article = await this.articlesRepo.findOneBy({ id: tagArticle.articleId });
+            articles.push(article);
+        }
+
+        response.articles = articles;
+
+        // TODO: check if articles are published and/or expired
+
+
+        return response;
     }
 
     // delete tag and tag relation

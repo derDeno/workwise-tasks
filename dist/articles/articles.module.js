@@ -15,6 +15,7 @@ const article_entity_1 = require("../entities/article.entity");
 const tags_entity_1 = require("../entities/tags.entity");
 const tag_article_entity_1 = require("../entities/tag-article.entity");
 const axios_1 = require("@nestjs/axios");
+const tags_service_1 = require("../tags/tags.service");
 let ArticlesModule = class ArticlesModule {
 };
 ArticlesModule = __decorate([
@@ -27,7 +28,7 @@ ArticlesModule = __decorate([
             ]),
             axios_1.HttpModule,
         ],
-        providers: [articles_service_1.ArticlesService],
+        providers: [articles_service_1.ArticlesService, tags_service_1.TagsService],
         controllers: [articles_controller_1.ArticlesController],
     })
 ], ArticlesModule);

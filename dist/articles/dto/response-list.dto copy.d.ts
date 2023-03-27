@@ -1,8 +1,8 @@
-export declare class ResponseArticleDto {
+export declare class ResponseListDto {
     id: number;
     title: string;
-    content: string;
     author: string;
     authorAge: number;
     date_created: number;
+    content: string;
 }

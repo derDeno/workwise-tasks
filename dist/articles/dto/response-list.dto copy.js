@@ -9,20 +9,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AuthorsEntity = void 0;
-const typeorm_1 = require("typeorm");
-let AuthorsEntity = class AuthorsEntity {
-};
+exports.ResponseListDto = void 0;
+const class_transformer_1 = require("class-transformer");
+class ResponseListDto {
+}
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)({ type: 'int', name: 'id' }),
-    __metadata("design:type", Number)
-], AuthorsEntity.prototype, "id", void 0);
-__decorate([
-    (0, typeorm_1.Column)('text', { name: 'name' }),
+    (0, class_transformer_1.Exclude)(),
     __metadata("design:type", String)
-], AuthorsEntity.prototype, "name", void 0);
-AuthorsEntity = __decorate([
-    (0, typeorm_1.Entity)('authors', { schema: 'workwise_blog' })
-], AuthorsEntity);
-exports.AuthorsEntity = AuthorsEntity;
-//# sourceMappingURL=authors.entity.js.map
+], ResponseListDto.prototype, "content", void 0);
+exports.ResponseListDto = ResponseListDto;
+//# sourceMappingURL=response-list.dto%20copy.js.map

@@ -10,10 +10,21 @@ exports.TagsModule = void 0;
 const common_1 = require("@nestjs/common");
 const tags_service_1 = require("./tags.service");
 const tags_controller_1 = require("./tags.controller");
+const typeorm_1 = require("@nestjs/typeorm");
+const article_entity_1 = require("../entities/article.entity");
+const tag_article_entity_1 = require("../entities/tag-article.entity");
+const tags_entity_1 = require("../entities/tags.entity");
 let TagsModule = class TagsModule {
 };
 TagsModule = __decorate([
     (0, common_1.Module)({
+        imports: [
+            typeorm_1.TypeOrmModule.forFeature([
+                article_entity_1.ArticlesEntity,
+                tags_entity_1.TagsEntity,
+                tag_article_entity_1.TagInArticleEntity,
+            ]),
+        ],
         providers: [tags_service_1.TagsService],
         controllers: [tags_controller_1.TagsController],
         exports: [tags_service_1.TagsService],
