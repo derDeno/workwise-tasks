@@ -7,15 +7,15 @@ import { TagInArticleEntity } from 'src/entities/tag-article.entity';
 import { TagsEntity } from 'src/entities/tags.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      ArticlesEntity,
-      TagsEntity,
-      TagInArticleEntity,
-    ]),
-  ],
-  providers: [TagsService],
-  controllers: [TagsController],
-  exports: [TagsService],
+    imports: [
+        TypeOrmModule.forFeature([
+            ArticlesEntity,
+            TagsEntity,
+            TagInArticleEntity,
+        ]),
+    ],
+    providers: [TagsService],
+    controllers: [TagsController],
+    exports: [TagsService],
 })
-export class TagsModule {}
+export class TagsModule { }

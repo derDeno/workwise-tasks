@@ -14,12 +14,13 @@ import { ResponseDto } from './dto/response.dto';
 
 @Injectable()
 export class ArticlesService {
+
     constructor(
         @InjectRepository(ArticlesEntity) private articlesRepo: Repository<ArticlesEntity>,
         @InjectRepository(TagInArticleEntity) private tagsArticleRepo: Repository<TagInArticleEntity>,
         @InjectRepository(TagsEntity) private tagsRepo: Repository<TagsEntity>,
         private httpService: HttpService,
-        private tagService: TagsService,
+        private tagService: TagsService
     ) { }
 
     async createArticle(dto: CreateArticleDto): Promise<any> {
@@ -45,13 +46,13 @@ export class ArticlesService {
             this.tagService.bindTag(tag, article.raw.insertId);
         }
 
-        return await this.articlesRepo.findOneByOrFail({id: article.raw.insertId });
+        return await this.articlesRepo.findOneByOrFail({ id: article.raw.insertId });
     }
 
-    
-    async getArticle(articleId: number): Promise<any> {
-        const article = await this.articlesRepo.findOneBy({ id: articleId });
 
+    async getArticle(articleId: number): Promise<any> {
+
+        const article = await this.articlesRepo.findOneBy({ id: articleId });
         const tags = await this.getTagsForArticle(articleId);
 
         const response = new ResponseDto();
@@ -63,13 +64,12 @@ export class ArticlesService {
         response.date_created = article.date_created;
         response.date_publish = article.date_publish;
         response.date_expire = article.date_expire;
-
         response.tags = tags;
 
         return response;
     }
 
-    
+
     async updateArticle(articleId: number, dto: UpdateArticleDto) {
 
         // map dto to entity
@@ -81,26 +81,26 @@ export class ArticlesService {
         article.author = dto.author;
 
         // check if author changed
-        if(dto.author != null) {
+        if (dto.author != null) {
             // update age
             const { data } = await firstValueFrom(this.httpService.get("https://api.agify.io/?name=" + dto.author));
             article.author_age = data.age;
         }
 
         // if tags are given, update them too
-        if(dto.tags != null) {
-            
+        if (dto.tags != null) {
+
             // save the tags
             for (const tag of dto.tags) {
                 this.tagService.bindTag(tag, articleId);
             }
         }
 
-        const result = await this.articlesRepo.update({ id: articleId}, article);
+        const result = await this.articlesRepo.update({ id: articleId }, article);
 
-        if(result.affected > 0) {
-            return { msg: 'Done'};
-        }else {
+        if (result.affected > 0) {
+            return { msg: 'Done' };
+        } else {
             throw new NotFoundException('Article not found!');
         }
     }
@@ -110,19 +110,20 @@ export class ArticlesService {
         // delete article first to make sure article exists
         const result = await this.articlesRepo.delete({ id: articleId });
 
-        if(result.affected > 0) {
+        if (result.affected > 0) {
 
             // now delete relation to tags
             await this.tagsArticleRepo.delete({ articleId: articleId });
 
-            return { msg: 'Done'};
-        }else {
+            return { msg: 'Done' };
+        } else {
             throw new NotFoundException('Article not found!');
         }
     }
-    
+
 
     async getAllArticles(tagFilter: string, authorFilter: string): Promise<any> {
+
         const articles = await this.articlesRepo.find();
         const result: ArticlesEntity[] = [];
 
@@ -130,14 +131,14 @@ export class ArticlesService {
 
             // check the publish and expire timestamps to determine if it is public or not
             const currentTimestamp = Math.floor(new Date().getTime() / 1000);
-            if(article.date_publish < currentTimestamp && ( article.date_expire === 0 || article.date_expire > currentTimestamp) ) {
+            if (article.date_publish < currentTimestamp && (article.date_expire === 0 || article.date_expire > currentTimestamp)) {
 
                 // check if author filter is set
-                if(authorFilter != null) {
-                    if(article.author == authorFilter) {
+                if (authorFilter != null) {
+                    if (article.author == authorFilter) {
                         result.push(article);
                     }
-                }else {
+                } else {
                     result.push(article);
                 }
             }
@@ -146,12 +147,12 @@ export class ArticlesService {
         // add / filter tags and prepare final response dto
         const response: ResponseListDto[] = [];
         for (const article of result) {
-            
+
             const tags = await this.getTagsForArticle(article.id);
 
             // check if there is a tags filter
-            if(tagFilter != null) {
-                if(tags.findIndex( x => x.name == tagFilter) > -1) {
+            if (tagFilter != null) {
+                if (tags.findIndex(x => x.name == tagFilter) > -1) {
                     // tagfilter is in tag array
                     const responseItem = new ResponseListDto();
                     responseItem.id = article.id;
@@ -163,7 +164,7 @@ export class ArticlesService {
 
                     response.push(responseItem);
                 }
-            }else {
+            } else {
                 const responseItem = new ResponseListDto();
                 responseItem.id = article.id;
                 responseItem.author = article.author;
@@ -177,7 +178,7 @@ export class ArticlesService {
         }
 
         // map entity to dto to remove the content field
-        return response; 
+        return response;
     }
 
 
@@ -194,5 +195,5 @@ export class ArticlesService {
 
         return result;
     }
-    
+
 }

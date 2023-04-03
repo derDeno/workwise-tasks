@@ -21,7 +21,7 @@ export class TagsService {
 
         let tag = await this.tagsRepo.findOneBy({ name: tagName });
 
-        if(tag == null) {
+        if (tag == null) {
 
             // no tag found, create one
             const newTag = new TagsEntity();
@@ -32,15 +32,15 @@ export class TagsService {
         }
 
         // check if relation already exists
-        let relation = await this.tagsArticleRepo.findOneBy({ articleId: articleId, tagId: tag.id});
+        let relation = await this.tagsArticleRepo.findOneBy({ articleId: articleId, tagId: tag.id });
 
-        if(relation == null) {
+        if (relation == null) {
 
             // create relation
             const newRelation = new TagInArticleEntity();
             newRelation.articleId = articleId;
             newRelation.tagId = tag.id;
-            
+
             const result = await this.tagsArticleRepo.insert(newRelation);
             relation = await this.tagsArticleRepo.findOneBy({ id: result.raw.insertId });
         }
@@ -63,7 +63,7 @@ export class TagsService {
 
         const response = new ResponseTagArticleDto();
         response.id = tagId;
-        response.name = ( await this.tagsRepo.findOneBy({ id: tagId }) ).name;
+        response.name = (await this.tagsRepo.findOneBy({ id: tagId })).name;
 
         const articles: ArticlesEntity[] = [];
 
@@ -87,13 +87,13 @@ export class TagsService {
         // execute tag deletion before relation deletion to check if the given tag exists
         const resultTags = await this.tagsRepo.delete({ id: tagId });
 
-        if(resultTags.affected > 0) {
+        if (resultTags.affected > 0) {
 
             // now delete all tag relations
             await this.tagsArticleRepo.delete({ tagId: tagId });
 
-            return { msg: 'Done'};
-        }else {
+            return { msg: 'Done' };
+        } else {
             throw new NotFoundException('Tag not found!');
         }
     }

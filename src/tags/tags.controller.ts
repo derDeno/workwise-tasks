@@ -4,10 +4,8 @@ import { TagsService } from './tags.service';
 @Controller('tags')
 export class TagsController {
 
-    constructor(private readonly services: TagsService) { 
+    constructor(private readonly services: TagsService) {
     }
-
-    
 
     // return all tags
     @Get('all')
@@ -27,5 +25,5 @@ export class TagsController {
         return await this.services.deleteTag(tagId);
     }
 
-    
+
 }

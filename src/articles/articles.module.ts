@@ -9,15 +9,15 @@ import { HttpModule } from '@nestjs/axios';
 import { TagsService } from 'src/tags/tags.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      ArticlesEntity,
-      TagsEntity,
-      TagInArticleEntity,
-    ]),
-    HttpModule,
-  ],
-  providers: [ArticlesService, TagsService],
-  controllers: [ArticlesController],
+    imports: [
+        TypeOrmModule.forFeature([
+            ArticlesEntity,
+            TagsEntity,
+            TagInArticleEntity,
+        ]),
+        HttpModule,
+    ],
+    providers: [ArticlesService, TagsService],
+    controllers: [ArticlesController],
 })
 export class ArticlesModule { }
