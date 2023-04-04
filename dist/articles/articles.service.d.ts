@@ -1,4 +1,4 @@
-import { ArticlesEntity } from 'src/entities/article.entity';
+import { ArticlesEntity } from 'src/entities/articles.entity';
 import { Repository } from 'typeorm';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { ResponseListDto } from './dto/response-list.dto';

@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TagsService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const article_entity_1 = require("../entities/article.entity");
+const articles_entity_1 = require("../entities/articles.entity");
 const tag_article_entity_1 = require("../entities/tag-article.entity");
 const tags_entity_1 = require("../entities/tags.entity");
 const typeorm_2 = require("typeorm");
@@ -74,7 +74,7 @@ TagsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(tags_entity_1.TagsEntity)),
     __param(1, (0, typeorm_1.InjectRepository)(tag_article_entity_1.TagInArticleEntity)),
-    __param(2, (0, typeorm_1.InjectRepository)(article_entity_1.ArticlesEntity)),
+    __param(2, (0, typeorm_1.InjectRepository)(articles_entity_1.ArticlesEntity)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository])

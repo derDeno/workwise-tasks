@@ -1,4 +1,4 @@
-import { ArticlesEntity } from 'src/entities/article.entity';
+import { ArticlesEntity } from 'src/entities/articles.entity';
 import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { ResponseListDto } from './dto/response-list.dto';

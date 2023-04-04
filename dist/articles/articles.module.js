@@ -11,7 +11,7 @@ const common_1 = require("@nestjs/common");
 const articles_service_1 = require("./articles.service");
 const articles_controller_1 = require("./articles.controller");
 const typeorm_1 = require("@nestjs/typeorm");
-const article_entity_1 = require("../entities/article.entity");
+const articles_entity_1 = require("../entities/articles.entity");
 const tags_entity_1 = require("../entities/tags.entity");
 const tag_article_entity_1 = require("../entities/tag-article.entity");
 const axios_1 = require("@nestjs/axios");
@@ -22,7 +22,7 @@ ArticlesModule = __decorate([
     (0, common_1.Module)({
         imports: [
             typeorm_1.TypeOrmModule.forFeature([
-                article_entity_1.ArticlesEntity,
+                articles_entity_1.ArticlesEntity,
                 tags_entity_1.TagsEntity,
                 tag_article_entity_1.TagInArticleEntity,
             ]),

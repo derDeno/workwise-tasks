@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ArticlesEntity } from 'src/entities/article.entity';
+import { ArticlesEntity } from 'src/entities/articles.entity';
 import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { ResponseListDto } from './dto/response-list.dto';

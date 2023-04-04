@@ -1,4 +1,4 @@
-import { ArticlesEntity } from "src/entities/article.entity";
+import { ArticlesEntity } from "src/entities/articles.entity";
 
 export class ResponseTagArticleDto {
     public id: number;

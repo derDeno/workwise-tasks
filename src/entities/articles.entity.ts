@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { TagInArticleEntity } from './tag-article.entity';
+import { TagsEntity } from './tags.entity';
 
 @Entity('articles', { schema: 'workwise_blog' })
 export class ArticlesEntity {
@@ -26,4 +28,14 @@ export class ArticlesEntity {
 
     @Column('int', { name: 'date_expire' })
     date_expire: number;
+
+    /*
+    @OneToMany(() => TagInArticleEntity, (tia) => tia.articleId)
+    @JoinTable()
+    tia: TagInArticleEntity[];
+
+    @ManyToMany(() => TagsEntity, (tags) =>  tags.id)
+    @JoinTable()
+    tags: TagsEntity[];
+    */
 }

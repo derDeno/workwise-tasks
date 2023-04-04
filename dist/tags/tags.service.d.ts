@@ -1,4 +1,4 @@
-import { ArticlesEntity } from 'src/entities/article.entity';
+import { ArticlesEntity } from 'src/entities/articles.entity';
 import { TagInArticleEntity } from 'src/entities/tag-article.entity';
 import { TagsEntity } from 'src/entities/tags.entity';
 import { Repository } from 'typeorm';

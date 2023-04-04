@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ArticlesService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const article_entity_1 = require("../entities/article.entity");
+const articles_entity_1 = require("../entities/articles.entity");
 const typeorm_2 = require("typeorm");
 const response_list_dto_1 = require("./dto/response-list.dto");
 const axios_1 = require("@nestjs/axios");
@@ -69,7 +69,7 @@ let ArticlesService = class ArticlesService {
         return response;
     }
     async createArticle(dto) {
-        const newArticle = new article_entity_1.ArticlesEntity();
+        const newArticle = new articles_entity_1.ArticlesEntity();
         newArticle.title = dto.title;
         newArticle.content = dto.content;
         newArticle.author = dto.author;
@@ -100,7 +100,7 @@ let ArticlesService = class ArticlesService {
         return response;
     }
     async updateArticle(articleId, dto) {
-        const article = new article_entity_1.ArticlesEntity();
+        const article = new articles_entity_1.ArticlesEntity();
         article.title = dto.title;
         article.content = dto.content;
         article.date_publish = dto.date_publish;
@@ -139,7 +139,7 @@ let ArticlesService = class ArticlesService {
 };
 ArticlesService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, typeorm_1.InjectRepository)(article_entity_1.ArticlesEntity)),
+    __param(0, (0, typeorm_1.InjectRepository)(articles_entity_1.ArticlesEntity)),
     __param(1, (0, typeorm_1.InjectRepository)(tag_article_entity_1.TagInArticleEntity)),
     __param(2, (0, typeorm_1.InjectRepository)(tags_entity_1.TagsEntity)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
