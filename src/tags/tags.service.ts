@@ -15,9 +15,8 @@ export class TagsService {
         @InjectRepository(ArticlesEntity) private articlesRepo: Repository<ArticlesEntity>,
     ) { }
 
-
     // create tag if it does not exist and then create relation to article
-    async bindTag(tagName: string, articleId: number): Promise<any> {
+    async bindTag(tagName: string, articleId: number): Promise<Object> {
 
         let tag = await this.tagsRepo.findOneBy({ name: tagName });
 
@@ -52,13 +51,12 @@ export class TagsService {
         }
     }
 
-
-    async getAllTags(): Promise<any> {
+    async getAllTags(): Promise<TagsEntity[]> {
         const tags = await this.tagsRepo.find();
         return tags;
     }
 
-    async getTagArticles(tagId: number): Promise<any> {
+    async getTagArticles(tagId: number): Promise<ResponseTagArticleDto> {
         const tagArticles = await this.tagsArticleRepo.findBy({ tagId: tagId });
 
         const response = new ResponseTagArticleDto();
@@ -81,21 +79,9 @@ export class TagsService {
         return response;
     }
 
-    // delete tag and tag relation
-    async deleteTag(tagId: number): Promise<any> {
+    async deleteTag(tagId: number): Promise<Object> {
 
-        // execute tag deletion before relation deletion to check if the given tag exists
-        const resultTags = await this.tagsRepo.delete({ id: tagId });
-
-        if (resultTags.affected > 0) {
-
-            // now delete all tag relations
-            await this.tagsArticleRepo.delete({ tagId: tagId });
-
-            return { msg: 'Done' };
-        } else {
-            throw new NotFoundException('Tag not found!');
-        }
+        await this.tagsRepo.delete({ id: tagId });
+        return { msg: 'Done' };
     }
-
 }

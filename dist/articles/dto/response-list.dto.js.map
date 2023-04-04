@@ -1,1 +1,1 @@
-{"version":3,"file":"response-list.dto.js","sourceRoot":"","sources":["../../../src/articles/dto/response-list.dto.ts"],"names":[],"mappings":";;;;;;;;;;;;AAAA,yDAA4C;AAG5C,MAAa,eAAe;CAU3B;AAFC;IAAC,IAAA,2BAAO,GAAE;;gDACa;AATzB,0CAUC"}
+{"version":3,"file":"response-list.dto.js","sourceRoot":"","sources":["../../../src/articles/dto/response-list.dto.ts"],"names":[],"mappings":";;;;;;;;;;;;AAAA,yDAA4C;AAG5C,MAAa,eAAe;CAW3B;AAFG;IAAC,IAAA,2BAAO,GAAE;;gDACa;AAV3B,0CAWC"}

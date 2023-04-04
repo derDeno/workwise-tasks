@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ArticlesEntity } from 'src/entities/article.entity';
-import { Repository } from 'typeorm';
+import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { ResponseListDto } from './dto/response-list.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
@@ -23,130 +23,28 @@ export class ArticlesService {
         private tagService: TagsService
     ) { }
 
-    async createArticle(dto: CreateArticleDto): Promise<any> {
+    async getAllArticles(tagFilter: string, authorFilter: string): Promise<ResponseListDto[]> {
 
-        // map dto to entity
-        const newArticle = new ArticlesEntity();
-        newArticle.title = dto.title;
-        newArticle.content = dto.content;
-        newArticle.author = dto.author;
-        newArticle.date_expire = dto.date_expire;
-        newArticle.date_publish = dto.date_publish;
-        newArticle.date_created = Math.floor(new Date().getTime() / 1000); // current timestamp in seconds
+        const currentTimestamp = Math.floor(new Date().getTime() / 1000);
 
-        // get age for author name
-        const { data } = await firstValueFrom(this.httpService.get("https://api.agify.io/?name=" + dto.author));
-        newArticle.author_age = data.age;
-
-        // get the id of the inserted row and return its content
-        const article = await this.articlesRepo.insert(newArticle);
-
-        // save the tags
-        for (const tag of dto.tags) {
-            this.tagService.bindTag(tag, article.raw.insertId);
-        }
-
-        return await this.articlesRepo.findOneByOrFail({ id: article.raw.insertId });
-    }
-
-
-    async getArticle(articleId: number): Promise<any> {
-
-        const article = await this.articlesRepo.findOneBy({ id: articleId });
-        const tags = await this.getTagsForArticle(articleId);
-
-        const response = new ResponseDto();
-        response.id = article.id;
-        response.author = article.author;
-        response.authorAge = article.author_age;
-        response.content = article.content;
-        response.title = article.title;
-        response.date_created = article.date_created;
-        response.date_publish = article.date_publish;
-        response.date_expire = article.date_expire;
-        response.tags = tags;
-
-        return response;
-    }
-
-
-    async updateArticle(articleId: number, dto: UpdateArticleDto) {
-
-        // map dto to entity
-        const article = new ArticlesEntity();
-        article.title = dto.title;
-        article.content = dto.content;
-        article.date_publish = dto.date_publish;
-        article.date_expire = dto.date_expire;
-        article.author = dto.author;
-
-        // check if author changed
-        if (dto.author != null) {
-            // update age
-            const { data } = await firstValueFrom(this.httpService.get("https://api.agify.io/?name=" + dto.author));
-            article.author_age = data.age;
-        }
-
-        // if tags are given, update them too
-        if (dto.tags != null) {
-
-            // save the tags
-            for (const tag of dto.tags) {
-                this.tagService.bindTag(tag, articleId);
-            }
-        }
-
-        const result = await this.articlesRepo.update({ id: articleId }, article);
-
-        if (result.affected > 0) {
-            return { msg: 'Done' };
-        } else {
-            throw new NotFoundException('Article not found!');
-        }
-    }
-
-    async deleteArticle(articleId: number): Promise<any> {
-
-        // delete article first to make sure article exists
-        const result = await this.articlesRepo.delete({ id: articleId });
-
-        if (result.affected > 0) {
-
-            // now delete relation to tags
-            await this.tagsArticleRepo.delete({ articleId: articleId });
-
-            return { msg: 'Done' };
-        } else {
-            throw new NotFoundException('Article not found!');
-        }
-    }
-
-
-    async getAllArticles(tagFilter: string, authorFilter: string): Promise<any> {
-
-        const articles = await this.articlesRepo.find();
-        const result: ArticlesEntity[] = [];
-
-        for (const article of articles) {
-
-            // check the publish and expire timestamps to determine if it is public or not
-            const currentTimestamp = Math.floor(new Date().getTime() / 1000);
-            if (article.date_publish < currentTimestamp && (article.date_expire === 0 || article.date_expire > currentTimestamp)) {
-
-                // check if author filter is set
-                if (authorFilter != null) {
-                    if (article.author == authorFilter) {
-                        result.push(article);
-                    }
-                } else {
-                    result.push(article);
+        const articles = await this.articlesRepo.find({
+            where: [
+                {
+                    date_publish: LessThanOrEqual(currentTimestamp),
+                    date_expire: MoreThanOrEqual(currentTimestamp),
+                    ...(authorFilter && { author: authorFilter })
+                },
+                {
+                    date_publish: LessThanOrEqual(currentTimestamp),
+                    date_expire: 0,
+                    ...(authorFilter && { author: authorFilter })
                 }
-            }
-        }
+            ]
+        });
 
         // add / filter tags and prepare final response dto
         const response: ResponseListDto[] = [];
-        for (const article of result) {
+        for (const article of articles) {
 
             const tags = await this.getTagsForArticle(article.id);
 
@@ -181,6 +79,91 @@ export class ArticlesService {
         return response;
     }
 
+    async createArticle(dto: CreateArticleDto): Promise<ArticlesEntity> {
+
+        // map dto to entity
+        const newArticle = new ArticlesEntity();
+        newArticle.title = dto.title;
+        newArticle.content = dto.content;
+        newArticle.author = dto.author;
+        newArticle.date_expire = dto.date_expire;
+        newArticle.date_publish = dto.date_publish;
+        newArticle.date_created = Math.floor(new Date().getTime() / 1000); // current timestamp in seconds
+
+        // get age for author name
+        const { data } = await firstValueFrom(this.httpService.get("https://api.agify.io/?name=" + dto.author));
+        newArticle.author_age = data.age;
+
+        // get the id of the inserted row and return its content
+        const article = await this.articlesRepo.insert(newArticle);
+
+        // save the tags
+        for (const tag of dto.tags) {
+            this.tagService.bindTag(tag, article.raw.insertId);
+        }
+
+        return await this.articlesRepo.findOneByOrFail({ id: article.raw.insertId });
+    }
+
+    async getArticle(articleId: number): Promise<ResponseDto> {
+
+        const article = await this.articlesRepo.findOneBy({ id: articleId });
+        const tags = await this.getTagsForArticle(articleId);
+
+        const response = new ResponseDto();
+        response.id = article.id;
+        response.author = article.author;
+        response.authorAge = article.author_age;
+        response.content = article.content;
+        response.title = article.title;
+        response.date_created = article.date_created;
+        response.date_publish = article.date_publish;
+        response.date_expire = article.date_expire;
+        response.tags = tags;
+
+        return response;
+    }
+
+    async updateArticle(articleId: number, dto: UpdateArticleDto): Promise<Object> {
+
+        // map dto to entity
+        const article = new ArticlesEntity();
+        article.title = dto.title;
+        article.content = dto.content;
+        article.date_publish = dto.date_publish;
+        article.date_expire = dto.date_expire;
+        article.author = dto.author;
+
+        // check if author changed
+        if (dto.author != null) {
+            // update age
+            const { data } = await firstValueFrom(this.httpService.get("https://api.agify.io/?name=" + dto.author));
+            article.author_age = data.age;
+        }
+
+        // if tags are given, update them too
+        if (dto.tags != null) {
+
+            // save the tags
+            for (const tag of dto.tags) {
+                this.tagService.bindTag(tag, articleId);
+            }
+        }
+
+        const result = await this.articlesRepo.update({ id: articleId }, article);
+
+        if (result.affected > 0) {
+            return { msg: 'Done' };
+        } else {
+            throw new NotFoundException('Article not found!');
+        }
+    }
+
+    async deleteArticle(articleId: number): Promise<Object> {
+
+        await this.articlesRepo.delete({ id: articleId });
+        return { msg: 'Done' };
+    }
 
     // get all tags for an article
     async getTagsForArticle(articleId: number): Promise<TagsEntity[]> {
@@ -195,5 +178,4 @@ export class ArticlesService {
 
         return result;
     }
-
 }

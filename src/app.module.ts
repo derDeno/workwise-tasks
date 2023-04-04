@@ -12,7 +12,7 @@ import { TagsModule } from './tags/tags.module';
             host: 'localhost',
             port: 3306,
             username: 'root',
-            password: 'ffYkexQAETVIb17!',
+            password: 'root',
             database: 'workwise_blog',
             entities: ['./entities/*.entity.{js,ts}'],
             autoLoadEntities: true,

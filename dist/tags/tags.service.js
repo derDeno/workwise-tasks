@@ -66,14 +66,8 @@ let TagsService = class TagsService {
         return response;
     }
     async deleteTag(tagId) {
-        const resultTags = await this.tagsRepo.delete({ id: tagId });
-        if (resultTags.affected > 0) {
-            await this.tagsArticleRepo.delete({ tagId: tagId });
-            return { msg: 'Done' };
-        }
-        else {
-            throw new common_1.NotFoundException('Tag not found!');
-        }
+        await this.tagsRepo.delete({ id: tagId });
+        return { msg: 'Done' };
     }
 };
 TagsService = __decorate([

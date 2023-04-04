@@ -32,6 +32,42 @@ let ArticlesService = class ArticlesService {
         this.httpService = httpService;
         this.tagService = tagService;
     }
+    async getAllArticles(tagFilter, authorFilter) {
+        const currentTimestamp = Math.floor(new Date().getTime() / 1000);
+        const articles = await this.articlesRepo.find({
+            where: [
+                Object.assign({ date_publish: (0, typeorm_2.LessThanOrEqual)(currentTimestamp), date_expire: (0, typeorm_2.MoreThanOrEqual)(currentTimestamp) }, (authorFilter && { author: authorFilter })),
+                Object.assign({ date_publish: (0, typeorm_2.LessThanOrEqual)(currentTimestamp), date_expire: 0 }, (authorFilter && { author: authorFilter }))
+            ]
+        });
+        const response = [];
+        for (const article of articles) {
+            const tags = await this.getTagsForArticle(article.id);
+            if (tagFilter != null) {
+                if (tags.findIndex(x => x.name == tagFilter) > -1) {
+                    const responseItem = new response_list_dto_1.ResponseListDto();
+                    responseItem.id = article.id;
+                    responseItem.author = article.author;
+                    responseItem.authorAge = article.author_age;
+                    responseItem.title = article.title;
+                    responseItem.date_created = article.date_created;
+                    responseItem.tags = tags;
+                    response.push(responseItem);
+                }
+            }
+            else {
+                const responseItem = new response_list_dto_1.ResponseListDto();
+                responseItem.id = article.id;
+                responseItem.author = article.author;
+                responseItem.authorAge = article.author_age;
+                responseItem.title = article.title;
+                responseItem.date_created = article.date_created;
+                responseItem.tags = tags;
+                response.push(responseItem);
+            }
+        }
+        return response;
+    }
     async createArticle(dto) {
         const newArticle = new article_entity_1.ArticlesEntity();
         newArticle.title = dto.title;
@@ -88,58 +124,8 @@ let ArticlesService = class ArticlesService {
         }
     }
     async deleteArticle(articleId) {
-        const result = await this.articlesRepo.delete({ id: articleId });
-        if (result.affected > 0) {
-            await this.tagsArticleRepo.delete({ articleId: articleId });
-            return { msg: 'Done' };
-        }
-        else {
-            throw new common_1.NotFoundException('Article not found!');
-        }
-    }
-    async getAllArticles(tagFilter, authorFilter) {
-        const articles = await this.articlesRepo.find();
-        const result = [];
-        for (const article of articles) {
-            const currentTimestamp = Math.floor(new Date().getTime() / 1000);
-            if (article.date_publish < currentTimestamp && (article.date_expire === 0 || article.date_expire > currentTimestamp)) {
-                if (authorFilter != null) {
-                    if (article.author == authorFilter) {
-                        result.push(article);
-                    }
-                }
-                else {
-                    result.push(article);
-                }
-            }
-        }
-        const response = [];
-        for (const article of result) {
-            const tags = await this.getTagsForArticle(article.id);
-            if (tagFilter != null) {
-                if (tags.findIndex(x => x.name == tagFilter) > -1) {
-                    const responseItem = new response_list_dto_1.ResponseListDto();
-                    responseItem.id = article.id;
-                    responseItem.author = article.author;
-                    responseItem.authorAge = article.author_age;
-                    responseItem.title = article.title;
-                    responseItem.date_created = article.date_created;
-                    responseItem.tags = tags;
-                    response.push(responseItem);
-                }
-            }
-            else {
-                const responseItem = new response_list_dto_1.ResponseListDto();
-                responseItem.id = article.id;
-                responseItem.author = article.author;
-                responseItem.authorAge = article.author_age;
-                responseItem.title = article.title;
-                responseItem.date_created = article.date_created;
-                responseItem.tags = tags;
-                response.push(responseItem);
-            }
-        }
-        return response;
+        await this.articlesRepo.delete({ id: articleId });
+        return { msg: 'Done' };
     }
     async getTagsForArticle(articleId) {
         const tagArticles = await this.tagsArticleRepo.findBy({ articleId: articleId });
