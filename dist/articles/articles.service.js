@@ -38,35 +38,24 @@ let ArticlesService = class ArticlesService {
             where: [
                 Object.assign({ date_publish: (0, typeorm_2.LessThanOrEqual)(currentTimestamp), date_expire: (0, typeorm_2.MoreThanOrEqual)(currentTimestamp) }, (authorFilter && { author: authorFilter })),
                 Object.assign({ date_publish: (0, typeorm_2.LessThanOrEqual)(currentTimestamp), date_expire: 0 }, (authorFilter && { author: authorFilter }))
-            ]
+            ],
+            relations: ['tia', 'tia.tag']
         });
         const response = [];
         for (const article of articles) {
-            const tags = await this.getTagsForArticle(article.id);
-            if (tagFilter != null) {
-                if (tags.findIndex(x => x.name == tagFilter) > -1) {
-                    const responseItem = new response_list_dto_1.ResponseListDto();
-                    responseItem.id = article.id;
-                    responseItem.author = article.author;
-                    responseItem.authorAge = article.author_age;
-                    responseItem.title = article.title;
-                    responseItem.date_created = article.date_created;
-                    responseItem.tags = tags;
-                    response.push(responseItem);
-                }
-            }
-            else {
-                const responseItem = new response_list_dto_1.ResponseListDto();
-                responseItem.id = article.id;
-                responseItem.author = article.author;
-                responseItem.authorAge = article.author_age;
-                responseItem.title = article.title;
-                responseItem.date_created = article.date_created;
-                responseItem.tags = tags;
-                response.push(responseItem);
-            }
+            const responseItem = new response_list_dto_1.ResponseListDto();
+            responseItem.id = article.id;
+            responseItem.author = article.author;
+            responseItem.authorAge = article.author_age;
+            responseItem.title = article.title;
+            responseItem.date_created = article.date_created;
+            responseItem.tags = article.tia.map(obj => obj.tag.name);
+            response.push(responseItem);
         }
-        return response;
+        if (tagFilter == null || tagFilter.length < 1) {
+            return response;
+        }
+        return response.filter(item => item.tags.includes(tagFilter));
     }
     async createArticle(dto) {
         const newArticle = new articles_entity_1.ArticlesEntity();
@@ -85,8 +74,10 @@ let ArticlesService = class ArticlesService {
         return await this.articlesRepo.findOneByOrFail({ id: article.raw.insertId });
     }
     async getArticle(articleId) {
-        const article = await this.articlesRepo.findOneBy({ id: articleId });
-        const tags = await this.getTagsForArticle(articleId);
+        const article = await this.articlesRepo.findOne({
+            where: { id: articleId },
+            relations: ['tia', 'tia.tag']
+        });
         const response = new response_dto_1.ResponseDto();
         response.id = article.id;
         response.author = article.author;
@@ -96,7 +87,7 @@ let ArticlesService = class ArticlesService {
         response.date_created = article.date_created;
         response.date_publish = article.date_publish;
         response.date_expire = article.date_expire;
-        response.tags = tags;
+        response.tags = article.tia.map(obj => obj.tag.name);
         return response;
     }
     async updateArticle(articleId, dto) {
@@ -126,15 +117,6 @@ let ArticlesService = class ArticlesService {
     async deleteArticle(articleId) {
         await this.articlesRepo.delete({ id: articleId });
         return { msg: 'Done' };
-    }
-    async getTagsForArticle(articleId) {
-        const tagArticles = await this.tagsArticleRepo.findBy({ articleId: articleId });
-        const result = [];
-        for (const tagArticle of tagArticles) {
-            const tag = await this.tagsRepo.findOneBy({ id: tagArticle.tagId });
-            result.push(tag);
-        }
-        return result;
     }
 };
 ArticlesService = __decorate([

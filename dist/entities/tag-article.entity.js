@@ -11,6 +11,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TagInArticleEntity = void 0;
 const typeorm_1 = require("typeorm");
+const tags_entity_1 = require("./tags.entity");
+const articles_entity_1 = require("./articles.entity");
 let TagInArticleEntity = class TagInArticleEntity {
 };
 __decorate([
@@ -25,6 +27,16 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'int', name: 'article_id' }),
     __metadata("design:type", Number)
 ], TagInArticleEntity.prototype, "articleId", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => articles_entity_1.ArticlesEntity, article => article.tia),
+    (0, typeorm_1.JoinColumn)({ name: 'article_id' }),
+    __metadata("design:type", articles_entity_1.ArticlesEntity)
+], TagInArticleEntity.prototype, "article", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => tags_entity_1.TagsEntity, tag => tag.tia),
+    (0, typeorm_1.JoinColumn)({ name: 'tag_id' }),
+    __metadata("design:type", tags_entity_1.TagsEntity)
+], TagInArticleEntity.prototype, "tag", void 0);
 TagInArticleEntity = __decorate([
     (0, typeorm_1.Entity)('tag_in_article', { schema: 'workwise_blog' })
 ], TagInArticleEntity);

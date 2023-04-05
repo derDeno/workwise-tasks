@@ -1,10 +1,10 @@
-import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { TagInArticleEntity } from './tag-article.entity';
 import { TagsEntity } from './tags.entity';
 
 @Entity('articles', { schema: 'workwise_blog' })
 export class ArticlesEntity {
-    
+
     @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
     id: number;
 
@@ -29,13 +29,6 @@ export class ArticlesEntity {
     @Column('int', { name: 'date_expire' })
     date_expire: number;
 
-    /*
-    @OneToMany(() => TagInArticleEntity, (tia) => tia.articleId)
-    @JoinTable()
+    @OneToMany(() => TagInArticleEntity, tia => tia.article)
     tia: TagInArticleEntity[];
-
-    @ManyToMany(() => TagsEntity, (tags) =>  tags.id)
-    @JoinTable()
-    tags: TagsEntity[];
-    */
 }

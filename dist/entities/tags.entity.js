@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TagsEntity = void 0;
 const typeorm_1 = require("typeorm");
+const tag_article_entity_1 = require("./tag-article.entity");
 let TagsEntity = class TagsEntity {
 };
 __decorate([
@@ -21,6 +22,10 @@ __decorate([
     (0, typeorm_1.Column)('text', { name: 'name' }),
     __metadata("design:type", String)
 ], TagsEntity.prototype, "name", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => tag_article_entity_1.TagInArticleEntity, tia => tia.tag),
+    __metadata("design:type", Array)
+], TagsEntity.prototype, "tia", void 0);
 TagsEntity = __decorate([
     (0, typeorm_1.Entity)('tags', { schema: 'workwise_blog' })
 ], TagsEntity);

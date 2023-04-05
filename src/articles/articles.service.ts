@@ -32,51 +32,39 @@ export class ArticlesService {
                 {
                     date_publish: LessThanOrEqual(currentTimestamp),
                     date_expire: MoreThanOrEqual(currentTimestamp),
-                    ...(authorFilter && { author: authorFilter })
+                    ...(authorFilter && { author: authorFilter }),
                 },
                 {
                     date_publish: LessThanOrEqual(currentTimestamp),
                     date_expire: 0,
                     ...(authorFilter && { author: authorFilter })
                 }
-            ]
+            ],
+            relations: ['tia', 'tia.tag']
+
         });
 
         // add / filter tags and prepare final response dto
         const response: ResponseListDto[] = [];
         for (const article of articles) {
 
-            const tags = await this.getTagsForArticle(article.id);
+            const responseItem = new ResponseListDto();
+            responseItem.id = article.id;
+            responseItem.author = article.author;
+            responseItem.authorAge = article.author_age;
+            responseItem.title = article.title;
+            responseItem.date_created = article.date_created;
+            responseItem.tags = article.tia.map(obj => obj.tag.name);
 
-            // check if there is a tags filter
-            if (tagFilter != null) {
-                if (tags.findIndex(x => x.name == tagFilter) > -1) {
-                    // tagfilter is in tag array
-                    const responseItem = new ResponseListDto();
-                    responseItem.id = article.id;
-                    responseItem.author = article.author;
-                    responseItem.authorAge = article.author_age;
-                    responseItem.title = article.title;
-                    responseItem.date_created = article.date_created;
-                    responseItem.tags = tags;
-
-                    response.push(responseItem);
-                }
-            } else {
-                const responseItem = new ResponseListDto();
-                responseItem.id = article.id;
-                responseItem.author = article.author;
-                responseItem.authorAge = article.author_age;
-                responseItem.title = article.title;
-                responseItem.date_created = article.date_created;
-                responseItem.tags = tags;
-
-                response.push(responseItem);
-            }
+            response.push(responseItem);
         }
 
-        // map entity to dto to remove the content field
-        return response;
+        // return the articles if no tag filter is set
+        if (tagFilter == null || tagFilter.length < 1) {
+            return response;
+        }
+
+        return response.filter(item => item.tags.includes(tagFilter));
     }
 
     async createArticle(dto: CreateArticleDto): Promise<ArticlesEntity> {
@@ -105,10 +93,12 @@ export class ArticlesService {
         return await this.articlesRepo.findOneByOrFail({ id: article.raw.insertId });
     }
 
-    async getArticle(articleId: number): Promise<ResponseDto> {
+    async getArticle(articleId: number): Promise<any> {
 
-        const article = await this.articlesRepo.findOneBy({ id: articleId });
-        const tags = await this.getTagsForArticle(articleId);
+        const article = await this.articlesRepo.findOne({
+            where: { id: articleId },
+            relations: ['tia', 'tia.tag']
+        });
 
         const response = new ResponseDto();
         response.id = article.id;
@@ -119,7 +109,7 @@ export class ArticlesService {
         response.date_created = article.date_created;
         response.date_publish = article.date_publish;
         response.date_expire = article.date_expire;
-        response.tags = tags;
+        response.tags = article.tia.map(obj => obj.tag.name);
 
         return response;
     }
@@ -163,19 +153,5 @@ export class ArticlesService {
 
         await this.articlesRepo.delete({ id: articleId });
         return { msg: 'Done' };
-    }
-
-    // get all tags for an article
-    async getTagsForArticle(articleId: number): Promise<TagsEntity[]> {
-
-        const tagArticles = await this.tagsArticleRepo.findBy({ articleId: articleId });
-        const result: TagsEntity[] = [];
-
-        for (const tagArticle of tagArticles) {
-            const tag = await this.tagsRepo.findOneBy({ id: tagArticle.tagId });
-            result.push(tag);
-        }
-
-        return result;
     }
 }

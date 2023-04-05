@@ -23,7 +23,7 @@ export class ArticlesController {
     }
 
     @Get(':id')
-    async getArticle(@Param('id') articleId: number): Promise<ResponseDto> {
+    async getArticle(@Param('id') articleId: number): Promise<any> {
         return await this.services.getArticle(articleId);
     }
 

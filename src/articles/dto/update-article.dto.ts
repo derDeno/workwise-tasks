@@ -1,5 +1,5 @@
 export class UpdateArticleDto {
-    
+
     public title: string;
     public content: string;
     public author: string;

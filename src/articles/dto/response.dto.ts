@@ -1,7 +1,5 @@
-import { TagsEntity } from 'src/entities/tags.entity';
-
 export class ResponseDto {
-    
+
     public id: number;
     public title: string;
     public content: string;
@@ -10,5 +8,5 @@ export class ResponseDto {
     public date_created: number;
     public date_publish: number;
     public date_expire: number;
-    public tags: TagsEntity[];
+    public tags: string[];
 }

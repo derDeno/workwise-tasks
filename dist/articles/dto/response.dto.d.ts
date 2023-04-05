@@ -1,4 +1,3 @@
-import { TagsEntity } from 'src/entities/tags.entity';
 export declare class ResponseDto {
     id: number;
     title: string;
@@ -8,5 +7,5 @@ export declare class ResponseDto {
     date_created: number;
     date_publish: number;
     date_expire: number;
-    tags: TagsEntity[];
+    tags: string[];
 }
